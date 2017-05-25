@@ -1,1 +1,185 @@
+import java.io.*;
+import java.util.*;
 
+public class VotingMachine {
+	
+	public static ArrayList<String> responses = new ArrayList<String>();
+	public static Scanner scan = new Scanner(System.in);
+	public static void main(String args[]) throws FileNotFoundException
+	{
+		userInput();
+	}
+
+	public static void userInput() throws FileNotFoundException
+	{
+		boolean inputLoop = true;
+		System.out.println("TWOW Voting Program thing v0.001\nFor help, type \"help\". duh.");
+		System.out.print("Enter");
+		while (inputLoop) { // input loop
+
+			System.out.print(":");
+			String userInput = scan.nextLine();
+			userInput.toLowerCase();
+			if (userInput.equalsIgnoreCase("quit")) {
+				System.out.println(
+						"Really now? You think you have the audacity to choose another program to run?\n"
+						+ "You will regret that desicion.");
+				scan.close();
+				inputLoop = false;
+			}
+			commandBoard(userInput);
+		}
+	}
+	
+	public static void commandBoard(String in) throws FileNotFoundException
+	{
+		if (in.contains("import "))
+		{
+			importResponses(in);
+		}
+		
+		else if (in.equals("sort"))
+		{
+			sortResponses();
+		}
+		
+		else if (in.equals("help"))
+		{
+			System.out.println(
+					  "To import a list of responses:\n"
+					+ "     Type \"import\" followed by the text file name of responses you wish to import. \n"
+					+ "              Ex: \"import responses.txt\"\n"
+					+ "     IMPORTANT!!! The text file must be in the twowVoting folder, otherwise an exeption will be thrown and everything will break!\n"
+					+ "     Also, formatting for the file is each response on a new line. Be sure to include what letter corresponds with each response.\n"
+					+ "              Ex: A: This is a sample response. Sample responses suck!\n"
+					+ "                  B: This is not a sample response. It's really cool and stuff!\n"
+					+ "To sort the list of imported responses:\n"
+					+ "     Type \"sort\", you will be prompted to type 'y' or 'n' for weather the top response is better than the bottom one. Yeah.");
+		}
+		
+		//add more commands here
+		
+	}
+	
+	public static void importResponses(String file) throws FileNotFoundException
+	{
+		responses.clear();
+		String txt = file.substring(file.indexOf(' ') + 1);
+		Scanner fileScan = new Scanner(new File(txt));
+		while (fileScan.hasNextLine())
+		{
+			String s = fileScan.nextLine();
+			responses.add(s);
+		}
+		fileScan.close();
+		for (String s : responses)
+			System.out.println(s);
+	}
+	
+	public static void sortResponses()
+	{
+		String[] dude = new String[responses.size()];
+		for (int i = 0; i < responses.size(); i++)
+		{
+			dude[i] = responses.get(i);
+		}
+		String[] butt = mergeSort(dude);
+		String voting = "";
+		System.out.println("Done!\nResults are:");
+		for (String s : butt)
+		{
+			voting = voting + s.substring(0,1);
+			System.out.println(s);
+		}
+		System.out.println("\n" + voting);
+	}
+	
+	
+	public static String[] merge(String[] A, String[] B)
+	{
+		String[] C = new String[A.length + B.length];
+		int aCount = 0, bCount = 0, cCount = 0;
+		
+		while (aCount < A.length && bCount < B.length)
+		{
+			boolean aIsGood = whatsGood(A[aCount], B[bCount]);
+			
+			if (aIsGood)
+			{
+				C[cCount] = A[aCount];
+				aCount++;
+			}
+			else
+			{
+				C[cCount] = B[bCount];
+				bCount++;
+			}
+			cCount++;
+		}
+		while (aCount < A.length)
+		{
+			C[cCount] = A[aCount];
+			aCount++;
+			cCount++;
+		}
+		while (bCount < B.length)
+		{
+			C[cCount] = B[bCount];
+			bCount++;
+			cCount++;
+		}
+		
+		if (cCount < C.length)
+		{
+			System.out.println("Something has gone terribly wrong!");
+		}
+		
+		return C;
+	}
+	
+	public static String[] mergeSort(String[] A)
+	{
+		if (A.length == 1)
+		{
+			return A;
+		}
+		
+		String[] right = new String[A.length / 2];
+		for (int i = 0; i < A.length / 2; i++)
+		{
+			right[i] = A[i];
+		}
+		String[] left = new String[A.length - right.length];
+		for (int i = A.length / 2; i < A.length; i++)
+		{
+			left[i - (A.length / 2)] = A[i];
+		}
+		return merge(mergeSort(left), mergeSort(right));
+	}
+	
+	public static boolean whatsGood(String a, String b)
+	{
+		String user = "";
+		System.out.println("Which one is better? (1/2)");
+		System.out.println(a + " | Words: " + wordCount(a) + "\n" + b + " | Words: " + wordCount(b));
+		while (!user.equalsIgnoreCase("1") && !user.equalsIgnoreCase("2"))
+		{
+			System.out.print(":");
+			user = scan.nextLine();
+		}
+		return user.equals("1");
+	}
+	
+	public static int wordCount(String s)
+	{
+		int i = -1;
+		Scanner hiNerd = new Scanner(s);
+		while (hiNerd.hasNext())
+		{
+			hiNerd.next();
+			i++;
+		}
+		hiNerd.close();
+		return i;
+	}
+}
